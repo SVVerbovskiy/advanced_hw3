@@ -21,24 +21,31 @@ URL = "https://habr.com"
 
 KEYWORDS = ['3D', 'Digital', 'Nixys', 'API', 'сервис']
 
-response = requests.get(URL, headers=HEADERS)
-text = response.text
 
-soup = bs4.BeautifulSoup(text, features="html.parser")
+def main():
+    response = requests.get(URL, headers=HEADERS)
+    text = response.text
 
-articles = soup.find_all("article")
-for article in articles:
-    previews = article.find_all(class_="article-formatted-body article-formatted-body article-formatted-body_version-2") \
-               + article.find_all(class_="article-formatted-body article-formatted-body "
-                                         "article-formatted-body_version-1")
-    previews = set(preview.text.strip() for preview in previews)
+    soup = bs4.BeautifulSoup(text, features="html.parser")
 
-    for preview in previews:
-        preview = re.sub(r'[.,!?/:;"]', ' ', preview)
-        preview = preview.split()
-        if set(preview) & set(KEYWORDS):
-            date = article.find(class_='tm-article-snippet__datetime-published').find('time').attrs['title']
-            href = article.find(class_="tm-article-snippet__title-link").attrs['href']
-            title = article.find("h2").find("span").text
-            result = f"{date} - {title} - {URL}{href}"
-            print(result)
+    articles = soup.find_all("article")
+    for article in articles:
+        previews = article.find_all(
+            class_="article-formatted-body article-formatted-body article-formatted-body_version-2") \
+                   + article.find_all(class_="article-formatted-body article-formatted-body "
+                                             "article-formatted-body_version-1")
+        previews = set(preview.text.strip() for preview in previews)
+
+        for preview in previews:
+            preview = re.sub(r'[.,!?/:;"]', ' ', preview)
+            preview = preview.split()
+            if set(preview) & set(KEYWORDS):
+                date = article.find(class_='tm-article-snippet__datetime-published').find('time').attrs['title']
+                href = article.find(class_="tm-article-snippet__title-link").attrs['href']
+                title = article.find("h2").find("span").text
+                result = f"{date} - {title} - {URL}{href}"
+                print(result)
+
+
+if __name__ == '__main__':
+    main()
